@@ -21,8 +21,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - run: |
+    - name: Fetch Git history and upstream tags
+      run: |
         git fetch --prune --unshallow --tags
+        git fetch https://github.com/maximegmd/CyberEngineTweaks.git --tags --force
 
     - name: Checkout submodules
       run: |
