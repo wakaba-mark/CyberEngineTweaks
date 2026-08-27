@@ -9,6 +9,34 @@
 #include <imgui_impl/win32.h>
 #include <window/window.h>
 
+namespace
+{
+const ImWchar* GetGlyphRangesGB2312(ImFontAtlas* apAtlas)
+{
+    static ImVector<ImWchar> ranges;
+    if (!ranges.empty())
+        return ranges.Data;
+
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(apAtlas->GetGlyphRangesChineseSimplifiedCommon());
+
+    constexpr UINT codePage = 936;
+    for (unsigned int lead = 0xA1; lead <= 0xF7; ++lead)
+    {
+        for (unsigned int trail = 0xA1; trail <= 0xFE; ++trail)
+        {
+            const char encoded[] = {static_cast<char>(lead), static_cast<char>(trail)};
+            wchar_t glyph = 0;
+            if (MultiByteToWideChar(codePage, MB_ERR_INVALID_CHARS, encoded, 2, &glyph, 1) == 1)
+                builder.AddChar(static_cast<ImWchar>(glyph));
+        }
+    }
+
+    builder.BuildRanges(&ranges);
+    return ranges.Data;
+}
+} // namespace
+
 bool D3D12::ResetState(const bool acDestroyContext)
 {
     if (m_initialized)
@@ -189,7 +217,7 @@ void D3D12::ReloadFonts()
     else if (fontSettings.Language == "ChineseSimplifiedCommon" || fontSettings.Language == "Default")
     {
         cetFontPath = GetAbsolutePath(m_paths.Fonts() / L"NotoSansSC-Regular.otf", m_paths.Fonts(), false);
-        cpGlyphRanges = io.Fonts->GetGlyphRangesChineseSimplifiedCommon();
+        cpGlyphRanges = GetGlyphRangesGB2312(io.Fonts);
     }
     else if (fontSettings.Language == "Japanese")
     {
@@ -227,7 +255,7 @@ void D3D12::ReloadFonts()
 
         case MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED):
             cetFontPath = GetAbsolutePath(m_paths.Fonts() / L"NotoSansSC-Regular.otf", m_paths.Fonts(), false);
-            cpGlyphRanges = io.Fonts->GetGlyphRangesChineseSimplifiedCommon();
+            cpGlyphRanges = GetGlyphRangesGB2312(io.Fonts);
             break;
 
         case MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT):
@@ -258,23 +286,15 @@ void D3D12::ReloadFonts()
         }
     }
 
-    // add extra glyphs from language font
+    // Always merge language glyphs from the bundled language font so custom primary fonts can fall back to it.
     config.MergeMode = true;
-    if (customFontPath.empty())
+    if (cetFontPath.empty())
     {
-        if (!fontSettings.Path.empty())
-            Log::Warn("D3D12::ReloadFonts() - Custom font path is invalid! Using default CET font.");
-
-        if (cetFontPath.empty())
-        {
-            Log::Warn("D3D12::ReloadFonts() - Missing fonts for extra language glyphs!");
-            io.Fonts->AddFontDefault(&config);
-        }
-        else
-            io.Fonts->AddFontFromFileTTF(UTF16ToUTF8(cetFontPath.native()).c_str(), config.SizePixels, &config, cpGlyphRanges);
+        Log::Warn("D3D12::ReloadFonts() - Missing fonts for extra language glyphs!");
+        io.Fonts->AddFontDefault(&config);
     }
     else
-        io.Fonts->AddFontFromFileTTF(UTF16ToUTF8(customFontPath.native()).c_str(), config.SizePixels, &config, cpGlyphRanges);
+        io.Fonts->AddFontFromFileTTF(UTF16ToUTF8(cetFontPath.native()).c_str(), config.SizePixels, &config, cpGlyphRanges);
 
     // add icons from fontawesome4
     config.GlyphMinAdvanceX = config.SizePixels;
