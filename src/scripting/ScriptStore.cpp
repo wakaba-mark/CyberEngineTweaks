@@ -38,14 +38,14 @@ void ScriptStore::LoadAll()
 
         if (file.path().native().starts_with(L"cet\\"))
         {
-            consoleLogger->warn("Ignoring mod using reserved name! ('{}')", pathStr);
+            consoleLogger->warn(Text::Mods::ReservedName, pathStr);
             continue;
         }
 
         const auto path = GetAbsolutePath(file.path(), cModsRoot, false);
         if (path.empty())
         {
-            consoleLogger->error("Tried to access invalid directory! ('{}')", pathStr);
+            consoleLogger->error(Text::Mods::InvalidDirectory, pathStr);
             continue;
         }
 
@@ -57,7 +57,7 @@ void ScriptStore::LoadAll()
 
         if (!exists(path / L"init.lua"))
         {
-            consoleLogger->warn("Ignoring mod which does not contain init.lua! ('{}')", pathStr);
+            consoleLogger->warn(Text::Mods::MissingEntryPoint, pathStr);
             continue;
         }
 
@@ -65,10 +65,10 @@ void ScriptStore::LoadAll()
         if (ctx.IsValid())
         {
             m_contexts.emplace(name, std::move(ctx));
-            consoleLogger->info("Mod {} loaded! ('{}')", name, pathStr);
+            consoleLogger->info(Text::Mods::Loaded, name, pathStr);
         }
         else
-            consoleLogger->error("Mod {} failed to load! ('{}')", name, pathStr);
+            consoleLogger->error(Text::Mods::LoadFailed, name, pathStr);
     }
 
     for (auto& contextIt : m_contexts)

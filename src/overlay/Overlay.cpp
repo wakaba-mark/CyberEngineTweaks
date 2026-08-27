@@ -22,7 +22,7 @@ void Overlay::PostInitialize()
         else
         {
             const auto cOverlayBindCode = CET::Get().GetBindings().GetBindCodeForModBind(Bindings::GetOverlayToggleModBind());
-            ImGui::InsertNotification({ToastType::Info, NOTIFY_DEFAULT_DISMISS, "CET Overlay Bind: %s", VKBindings::GetBindString(cOverlayBindCode).c_str()});
+            ImGui::InsertNotification({ToastType::Info, NOTIFY_DEFAULT_DISMISS, Text::OverlayBindNotification, VKBindings::GetBindString(cOverlayBindCode).c_str()});
         }
 
         m_initialized = true;
@@ -222,7 +222,7 @@ void Overlay::Update()
     const auto heightLimit = 2 * ImGui::GetFrameHeight() + 2 * ImGui::GetStyle().WindowPadding.y;
     ImGui::SetNextWindowPos({width * 0.25f, height * 0.05f}, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSizeConstraints({width * 0.5f, heightLimit}, {FLT_MAX, heightLimit});
-    if (ImGui::Begin("Cyber Engine Tweaks"))
+    if (ImGui::Begin(Text::MainWindow))
         DrawToolbar();
     ImGui::End();
 
@@ -266,7 +266,7 @@ void Overlay::DrawToolbar()
     auto& persistentState = m_persistentState.Overlay;
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.ConsoleToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("Console", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::Console, ImVec2(itemWidth, 0)))
         m_console.Toggle();
     if (!m_toggled)
         persistentState.ConsoleToggled = m_console.IsEnabled();
@@ -275,7 +275,7 @@ void Overlay::DrawToolbar()
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.BindingsToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("Bindings", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::Bindings, ImVec2(itemWidth, 0)))
         m_bindings.Toggle();
     if (!m_toggled)
         persistentState.BindingsToggled = m_bindings.IsEnabled();
@@ -284,7 +284,7 @@ void Overlay::DrawToolbar()
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.SettingsToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("Settings", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::Settings, ImVec2(itemWidth, 0)))
         m_settings.Toggle();
     if (!m_toggled)
         persistentState.SettingsToggled = m_settings.IsEnabled();
@@ -293,7 +293,7 @@ void Overlay::DrawToolbar()
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.TweakDBEditorToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("TweakDB Editor", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::TweakDBEditor, ImVec2(itemWidth, 0)))
         m_tweakDBEditor.Toggle();
     if (!m_toggled)
         persistentState.TweakDBEditorToggled = m_tweakDBEditor.IsEnabled();
@@ -302,7 +302,7 @@ void Overlay::DrawToolbar()
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.GameLogToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("Game Log", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::GameLog, ImVec2(itemWidth, 0)))
         m_gameLog.Toggle();
     if (!m_toggled)
         persistentState.GameLogToggled = m_gameLog.IsEnabled();
@@ -311,7 +311,7 @@ void Overlay::DrawToolbar()
     ImGui::SameLine();
 
     ImGui::PushStyleColor(ImGuiCol_Button, persistentState.ImGuiDebugToggled ? ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive) : ImGui::GetStyleColorVec4(ImGuiCol_Button));
-    if (ImGui::Button("ImGui Debug", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::ImGuiDebug, ImVec2(itemWidth, 0)))
         m_imguiDebug.Toggle();
     if (!m_toggled)
         persistentState.ImGuiDebugToggled = m_imguiDebug.IsEnabled();
@@ -319,6 +319,6 @@ void Overlay::DrawToolbar()
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Reload all mods", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::ReloadAllMods, ImVec2(itemWidth, 0)))
         m_vm.ReloadAllMods();
 }

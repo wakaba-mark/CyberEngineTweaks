@@ -187,10 +187,10 @@ public:
             switch (this->type)
             {
             case ToastType::None: return nullptr;
-            case ToastType::Success: return "Success";
-            case ToastType::Warning: return "Warning";
-            case ToastType::Error: return "Error";
-            case ToastType::Info: return "Info";
+            case ToastType::Success: return Text::Toast::Success;
+            case ToastType::Warning: return Text::Toast::Warning;
+            case ToastType::Error: return Text::Toast::Error;
+            case ToastType::Info: return Text::Toast::Info;
             default: return nullptr;
             }
         }

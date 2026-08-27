@@ -6,6 +6,9 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
+
     strategy:
       matrix:
         os: [windows-latest]
@@ -16,7 +19,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: |
         git fetch --prune --unshallow --tags
 
@@ -57,3 +60,32 @@ jobs:
       with:
         name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}-pdb
         path: package/**/*.pdb
+
+  publish:
+    name: Publish Chinese release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download release package
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-latest-x64-release
+        path: release-package
+
+    - name: Create release ZIP
+      shell: pwsh
+      run: Compress-Archive -Path release-package/* -DestinationPath "CyberEngineTweaks-${{ github.ref_name }}-zh-CN.zip"
+
+    - name: Publish GitHub Release
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release create "${{ github.ref_name }}" `
+          "CyberEngineTweaks-${{ github.ref_name }}-zh-CN.zip" `
+          --title "Cyber Engine Tweaks ${{ github.ref_name }} 简体中文版" `
+          --notes "基于 Cyber Engine Tweaks 制作的非官方简体中文版本。下载 ZIP 后，将其中的 bin 文件夹解压到《赛博朋克 2077》游戏根目录。"

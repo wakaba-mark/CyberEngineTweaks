@@ -23,7 +23,7 @@ bool LuaVM::ExecuteLua(const std::string& acCommand) const
 {
     if (!m_initialized)
     {
-        spdlog::get("scripting")->info("Command not executed! LuaVM is not yet initialized!");
+        spdlog::get("scripting")->info(Text::LuaVMNotReady);
         return false;
     }
 
@@ -198,7 +198,7 @@ void LuaVM::PostInitializeMods()
 
     m_scripting.PostInitializeMods();
 
-    spdlog::get("scripting")->info("LuaVM: initialization finished!");
+    spdlog::get("scripting")->info(Text::LuaVMReady);
 
     m_initialized = true;
 }

@@ -189,7 +189,7 @@ float GetCenteredOffsetForText(const char* acpText)
 TChangedCBResult UnsavedChangesPopup(
     const std::string& acpOwnerName, bool& aFirstTime, const bool acMadeChanges, const TWidgetCB& acpSaveCB, const TWidgetCB& acpLoadCB, const TWidgetCB& acpCancelCB)
 {
-    auto popupTitle = acpOwnerName.empty() ? "Unsaved changes" : fmt::format("{} - Unsaved changes", acpOwnerName);
+    auto popupTitle = acpOwnerName.empty() ? Text::UnsavedChanges : fmt::format(Text::UnsavedChangesFor, acpOwnerName);
 
     if (acMadeChanges)
     {
@@ -203,18 +203,18 @@ TChangedCBResult UnsavedChangesPopup(
 
         if (ImGui::BeginPopupModal(popupTitle.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            const auto shorterTextSz{ImGui::CalcTextSize("You have some unsaved changes.").x};
-            const auto longerTextSz{ImGui::CalcTextSize("Do you wish to apply them or discard them?").x};
+            const auto shorterTextSz{ImGui::CalcTextSize(Text::UnsavedChangesNotice).x};
+            const auto longerTextSz{ImGui::CalcTextSize(Text::UnsavedChangesQuestion).x};
             const auto diffTextSz{longerTextSz - shorterTextSz};
 
             ImGui::SetCursorPosX(diffTextSz / 2);
-            ImGui::TextUnformatted("You have some unsaved changes.");
-            ImGui::TextUnformatted("Do you wish to apply them or discard them?");
+            ImGui::TextUnformatted(Text::UnsavedChangesNotice);
+            ImGui::TextUnformatted(Text::UnsavedChangesQuestion);
             ImGui::Separator();
 
             const auto itemWidth = GetAlignedItemWidth(3);
 
-            if (ImGui::Button("Apply", ImVec2(itemWidth, 0)))
+            if (ImGui::Button(Text::Apply, ImVec2(itemWidth, 0)))
             {
                 if (acpSaveCB)
                     acpSaveCB();
@@ -223,7 +223,7 @@ TChangedCBResult UnsavedChangesPopup(
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if (ImGui::Button("Discard", ImVec2(itemWidth, 0)))
+            if (ImGui::Button(Text::Discard, ImVec2(itemWidth, 0)))
             {
                 if (acpLoadCB)
                     acpLoadCB();
@@ -232,7 +232,7 @@ TChangedCBResult UnsavedChangesPopup(
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if (ImGui::Button("Cancel", ImVec2(itemWidth, 0)))
+            if (ImGui::Button(Text::Cancel, ImVec2(itemWidth, 0)))
             {
                 if (acpCancelCB)
                     acpCancelCB();

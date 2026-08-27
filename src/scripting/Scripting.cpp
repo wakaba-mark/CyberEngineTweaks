@@ -632,7 +632,7 @@ void Scripting::ReloadAllMods()
     if (CET::Get().GetOverlay().IsEnabled())
         TriggerOnOverlayOpen();
 
-    spdlog::get("scripting")->info("LuaVM: Reloaded all mods!");
+    spdlog::get("scripting")->info(Text::ModsReloaded);
 }
 
 bool Scripting::ExecuteLua(const std::string& acCommand) const

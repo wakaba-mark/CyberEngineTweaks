@@ -69,6 +69,7 @@
 
 #include "common/Logging.h"
 #include "common/FontMaterialDesignIcons.h"
+#include "Localization.h"
 #include "common/ImGuiNotify.h"
 #include "Options.h"
 #include "Paths.h"

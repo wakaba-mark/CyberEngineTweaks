@@ -137,7 +137,7 @@ GameOption* GameOptions::Find(const std::string& category, const std::string& na
 
     if (option == s_gameOptions.end())
     {
-        spdlog::get("scripting")->info("Failed to find game option '{}/{}'!", category, name);
+        spdlog::get("scripting")->info(Text::GameOptions::NotFound, category, name);
         return nullptr;
     }
 
@@ -172,7 +172,7 @@ bool GameOptions::GetBool(const std::string& category, const std::string& name)
     const bool result = option->GetBool(value);
     if (!result)
     {
-        spdlog::get("scripting")->info("Failed to read game option '{}/{}', not a boolean?", category, name);
+        spdlog::get("scripting")->info(Text::GameOptions::ReadBooleanFailed, category, name);
         return false;
     }
 
@@ -189,7 +189,7 @@ int GameOptions::GetInt(const std::string& category, const std::string& name)
     const bool result = option->GetInt(value);
     if (!result)
     {
-        spdlog::get("scripting")->info("Failed to read game option '{}/{}', not an integer/color?", category, name);
+        spdlog::get("scripting")->info(Text::GameOptions::ReadIntegerFailed, category, name);
         return 0;
     }
 
@@ -206,7 +206,7 @@ float GameOptions::GetFloat(const std::string& category, const std::string& name
     const bool result = option->GetFloat(value);
     if (!result)
     {
-        spdlog::get("scripting")->info("Failed to read game option '{}/{}', not a float?", category, name);
+        spdlog::get("scripting")->info(Text::GameOptions::ReadFloatFailed, category, name);
         return 0.f;
     }
 
@@ -223,9 +223,9 @@ void GameOptions::Set(const std::string& category, const std::string& name, cons
     if (!option->Set(value))
     {
         if (option->GetType() == GameOption::kString)
-            consoleLogger->error("Failed to set game option '{}/{}', can't set string options right now.", category, name);
+            consoleLogger->error(Text::GameOptions::SetStringUnsupported, category, name);
         else
-            consoleLogger->error("Failed to set game option '{}/{}' due to an error (missing pointer?).", category, name);
+            consoleLogger->error(Text::GameOptions::SetFailed, category, name);
     }
 }
 
@@ -239,9 +239,9 @@ void GameOptions::SetBool(const std::string& category, const std::string& name, 
     if (!option->SetBool(value))
     {
         if (option->GetType() != GameOption::kBoolean)
-            consoleLogger->error("Failed to set game option '{}/{}', not a boolean.", category, name);
+            consoleLogger->error(Text::GameOptions::SetBooleanFailed, category, name);
         else
-            consoleLogger->error("Failed to set game option '{}/{}' due to an error (missing pointer?).", category, name);
+            consoleLogger->error(Text::GameOptions::SetFailed, category, name);
     }
 }
 
@@ -255,9 +255,9 @@ void GameOptions::SetInt(const std::string& category, const std::string& name, i
     if (!option->SetInt(value))
     {
         if (option->GetType() != GameOption::kInteger && option->GetType() != GameOption::kColor)
-            consoleLogger->error("Failed to set game option '{}/{}', not an integer.", category, name);
+            consoleLogger->error(Text::GameOptions::SetIntegerFailed, category, name);
         else
-            consoleLogger->error("Failed to set game option '{}/{}' due to an error (missing pointer?).", category, name);
+            consoleLogger->error(Text::GameOptions::SetFailed, category, name);
     }
 }
 
@@ -271,9 +271,9 @@ void GameOptions::SetFloat(const std::string& category, const std::string& name,
     if (!option->SetFloat(value))
     {
         if (option->GetType() != GameOption::kFloat)
-            consoleLogger->error("Failed to set game option '{}/{}', not a float.", category, name);
+            consoleLogger->error(Text::GameOptions::SetFloatFailed, category, name);
         else
-            consoleLogger->error("Failed to set game option '{}/{}' due to an error (missing pointer?).", category, name);
+            consoleLogger->error(Text::GameOptions::SetFailed, category, name);
     }
 }
 
@@ -287,9 +287,9 @@ void GameOptions::Toggle(const std::string& category, const std::string& name)
     if (!option->Toggle())
     {
         if (option->GetType() != GameOption::kBoolean)
-            consoleLogger->error("Failed to set game option '{}/{}', not a boolean.", category, name);
+            consoleLogger->error(Text::GameOptions::SetBooleanFailed, category, name);
         else
-            consoleLogger->error("Failed to set game option '{}/{}' due to an error (missing pointer?).", category, name);
+            consoleLogger->error(Text::GameOptions::SetFailed, category, name);
     }
 }
 
@@ -298,7 +298,7 @@ void GameOptions::Dump()
     for (const auto option : s_gameOptions)
         Log::Info(option->GetInfo());
 
-    spdlog::get("scripting")->info("Dumped {} options to cyber_engine_tweaks.log", s_gameOptions.size());
+    spdlog::get("scripting")->info(Text::GameOptions::Dumped, s_gameOptions.size());
 }
 
 void GameOptions::List(const std::string& category)
@@ -327,7 +327,7 @@ void GameOptions::List(const std::string& category)
         }
     }
 
-    consoleLogger->info("Found {} options", count);
+    consoleLogger->info(Text::GameOptions::Found, count);
 }
 
 TiltedPhoques::Vector<GameOption*>& GameOptions::GetList()

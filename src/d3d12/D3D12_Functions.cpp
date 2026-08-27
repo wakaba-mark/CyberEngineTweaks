@@ -186,7 +186,7 @@ void D3D12::ReloadFonts()
         cetFontPath = GetAbsolutePath(m_paths.Fonts() / L"NotoSansTC-Regular.otf", m_paths.Fonts(), false);
         cpGlyphRanges = io.Fonts->GetGlyphRangesChineseFull();
     }
-    else if (fontSettings.Language == "ChineseSimplifiedCommon")
+    else if (fontSettings.Language == "ChineseSimplifiedCommon" || fontSettings.Language == "Default")
     {
         cetFontPath = GetAbsolutePath(m_paths.Fonts() / L"NotoSansSC-Regular.otf", m_paths.Fonts(), false);
         cpGlyphRanges = io.Fonts->GetGlyphRangesChineseSimplifiedCommon();

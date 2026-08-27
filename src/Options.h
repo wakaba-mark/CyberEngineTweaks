@@ -28,7 +28,7 @@ struct FontSettings
     [[nodiscard]] auto operator<=>(const FontSettings&) const = default;
 
     std::string Path{};
-    std::string Language{"Default"};
+    std::string Language{"ChineseSimplifiedCommon"};
     float BaseSize{18.0f};
     int32_t OversampleHorizontal{3};
     int32_t OversampleVertical{1};

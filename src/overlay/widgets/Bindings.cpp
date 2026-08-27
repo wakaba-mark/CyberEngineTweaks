@@ -8,7 +8,7 @@
 namespace
 {
 VKBind s_overlayToggleBind{
-    "overlay_key", "Overlay Key", "Use this hotkey to toggle overlay on and off.",
+    "overlay_key", Text::OverlayKey, Text::OverlayKeyDescription,
     []
     {
         if (!CET::Get().GetBindings().IsRecordingBind())
@@ -24,7 +24,7 @@ bool VKBindInfo::operator==(const std::string& id) const
 }
 
 Bindings::Bindings(VKBindings& aBindings, LuaVM& aVm)
-    : Widget("Bindings")
+    : Widget(Text::Bindings)
     , m_bindings(aBindings)
     , m_vm(aVm)
 {
@@ -44,7 +44,7 @@ WidgetResult Bindings::OnEnable()
 WidgetResult Bindings::OnPopup()
 {
     const auto ret = UnsavedChangesPopup(
-        "Bindings", m_openChangesModal, m_madeChanges, [this] { Save(); }, [this] { ResetChanges(); });
+        Text::BindingsTitle, m_openChangesModal, m_madeChanges, [this] { Save(); }, [this] { ResetChanges(); });
     m_madeChanges = ret == TChangedCBResult::CHANGED;
     m_popupResult = ret;
 
@@ -90,10 +90,10 @@ void Bindings::OnUpdate()
     ImGui::Separator();
 
     const auto itemWidth = GetAlignedItemWidth(2);
-    if (ImGui::Button("Save", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::Save, ImVec2(itemWidth, 0)))
         Save();
     ImGui::SameLine();
-    if (ImGui::Button("Reset changes", ImVec2(itemWidth, 0)))
+    if (ImGui::Button(Text::ResetChanges, ImVec2(itemWidth, 0)))
         ResetChanges();
 }
 
@@ -165,17 +165,17 @@ bool Bindings::FirstTimeSetup()
 
     m_vm.BlockDraw(true);
 
-    ImGui::OpenPopup("CET First Time Setup");
+    ImGui::OpenPopup(Text::FirstTimeSetup);
 
-    if (ImGui::BeginPopupModal("CET First Time Setup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal(Text::FirstTimeSetup, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        const auto shorterTextSz{ImGui::CalcTextSize("Combo can be composed from up to 4 keys.").x};
-        const auto longerTextSz{ImGui::CalcTextSize("Please, bind some key combination for toggling overlay!").x};
+        const auto shorterTextSz{ImGui::CalcTextSize(Text::FirstTimeBindLimit).x};
+        const auto longerTextSz{ImGui::CalcTextSize(Text::FirstTimeBindPrompt).x};
         const auto diffTextSz{longerTextSz - shorterTextSz};
 
-        ImGui::TextUnformatted("Please, bind some key combination for toggling overlay!");
+        ImGui::TextUnformatted(Text::FirstTimeBindPrompt);
         ImGui::SetCursorPosX(diffTextSz / 2);
-        ImGui::TextUnformatted("Combo can be composed from up to 4 keys.");
+        ImGui::TextUnformatted(Text::FirstTimeBindLimit);
         ImGui::Separator();
 
         auto& [cetBinds, cetHotkeys] = m_vkBindInfos.at(s_overlayToggleModBind.ModName);
@@ -359,7 +359,7 @@ void Bindings::UpdateAndDrawBinding(const VKModBind& acModBind, VKBindInfo& aVKB
                 ImGui::EndTooltip();
             }
             else
-                ImGui::SetTooltip("Currently unable to draw this tooltip. Wait for a bit please...");
+                ImGui::SetTooltip(Text::TooltipUnavailable);
         }
         if (bind.HasSimpleDescription())
         {
@@ -374,7 +374,7 @@ void Bindings::UpdateAndDrawBinding(const VKModBind& acModBind, VKBindInfo& aVKB
     const auto currentBindState = aVKBindInfo.IsBinding ? m_bindings.GetLastRecordingResult() : aVKBindInfo.CodeBind;
     ImGui::PushID(&aVKBindInfo.CodeBind);
     if (ImGui::Button(
-            aVKBindInfo.IsBinding && currentBindState == 0 ? "Binding..." : VKBindings::GetBindString(currentBindState).c_str(),
+            aVKBindInfo.IsBinding && currentBindState == 0 ? Text::Binding : VKBindings::GetBindString(currentBindState).c_str(),
             ImVec2(unbindable ? -(ImGui::GetFrameHeight() + ImGui::GetStyle().ItemSpacing.x) : -FLT_MIN, 0)))
     {
         if (!aVKBindInfo.IsBinding && !isRecording)
@@ -396,7 +396,7 @@ void Bindings::UpdateAndDrawBinding(const VKModBind& acModBind, VKBindInfo& aVKB
                 ImGui::EndTooltip();
             }
             else
-                ImGui::SetTooltip("Currently unable to draw this tooltip. Wait for a bit please...");
+                ImGui::SetTooltip(Text::TooltipUnavailable);
         }
         if (bind.HasSimpleDescription())
         {
@@ -425,7 +425,7 @@ void Bindings::UpdateAndDrawBinding(const VKModBind& acModBind, VKBindInfo& aVKB
         ImGui::PopID();
 
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-            ImGui::SetTooltip("Uncheck this checkbox to unbind this binding.");
+            ImGui::SetTooltip(Text::UnbindTooltip);
     }
 
     ImGui::PopStyleColor();
@@ -439,7 +439,7 @@ void Bindings::UpdateAndDrawModBindings(const std::string& acModName, TiltedPhoq
         return;
 
     // transform mod name to nicer format until modinfo is in
-    std::string activeModName = acModName == s_overlayToggleModBind.ModName ? "Cyber Engine Tweaks" : acModName;
+    std::string activeModName = acModName == s_overlayToggleModBind.ModName ? Text::ProductName : acModName;
     bool capitalize = true;
     std::ranges::transform(
         std::as_const(activeModName), activeModName.begin(),
@@ -471,11 +471,10 @@ void Bindings::UpdateAndDrawModBindings(const std::string& acModName, TiltedPhoq
     {
         if (!aSimplified)
         {
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetCenteredOffsetForText("Hotkeys"));
-            ImGui::TextUnformatted("Hotkeys");
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetCenteredOffsetForText(Text::Hotkeys));
+            ImGui::TextUnformatted(Text::Hotkeys);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-                ImGui::SetTooltip("Hotkeys react after assigned key combination has been pressed and subsequently "
-                                  "released. You can bind up to 4 key combination to them.");
+                ImGui::SetTooltip(Text::HotkeysTooltip);
             ImGui::Separator();
         }
 
@@ -495,10 +494,10 @@ void Bindings::UpdateAndDrawModBindings(const std::string& acModName, TiltedPhoq
     {
         if (!aSimplified)
         {
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetCenteredOffsetForText("Inputs"));
-            ImGui::TextUnformatted("Inputs");
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetCenteredOffsetForText(Text::Inputs));
+            ImGui::TextUnformatted(Text::Inputs);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-                ImGui::SetTooltip("Inputs react when key is pressed and released. You can bind single key to them.");
+                ImGui::SetTooltip(Text::InputsTooltip);
             ImGui::Separator();
         }
 
